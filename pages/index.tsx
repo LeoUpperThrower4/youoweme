@@ -7,9 +7,7 @@ import useGroups from '../hooks/useGroups'
 import { writeData } from '../services/realtimeDB.js'
 
 const Home: NextPage = () => {
-  const groups = useGroups();
-  // writeData("groups", [{ name: "Group 1" }, { name: "Group 2" }]);
-  console.log(groups);
+  const { groups } = useGroups();
   return (
     <>
       <Header />
