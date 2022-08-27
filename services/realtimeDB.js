@@ -11,6 +11,6 @@ export function writeData(path, data) {
 export function readData(path, callback) {
   const pathRef = ref(db, path);
   onValue(pathRef, (snapshot) => {
-    callback(snapshot.val());
+    callback(snapshot.val() || []);
   });
 }
