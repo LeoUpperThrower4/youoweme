@@ -1,5 +1,6 @@
 import Modal from 'react-modal';
 import { useState } from 'react';
+import { useSession, signIn, signOut } from 'next-auth/react';
 import useGroups from '../hooks/useGroups';
 
 Modal.setAppElement('#__next');
@@ -15,13 +16,18 @@ const customModalStyles = {
   },
 };
 
-export default function Example() {
+export default function Header() {
+  const { data: session, status } = useSession();
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [groupName, setGroupName] = useState('');
   const { addGroup } = useGroups();
 
   function handleCreateGroupClick() {
-    openModal()
+    if (status != 'authenticated') {
+      signIn('github');
+    } else {
+      openModal()
+    }
   }
 
   function openModal() {
@@ -39,7 +45,8 @@ export default function Example() {
     event.preventDefault();
     addGroup({
       name: groupName,
-    });
+      creator: session.user.email,
+  });
     handleCloseModal();
   }
 
@@ -49,6 +56,9 @@ export default function Example() {
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Top">
           <div className="flex justify-center">
             <button onClick={handleCreateGroupClick} className="rounded border-2 border-cyan-700 px-4 py-2 my-4 text-slate-100">Criar Grupo</button>
+            {status == 'authenticated' && <button onClick={signOut} className="rounded border-2 border-cyan-700 px-4 py-2 my-4 ml-2 text-slate-100">Logout</button>}
+            {status == 'unauthenticated' && <button onClick={() => signIn('github')} className="rounded border-2 border-cyan-700 px-4 py-2 my-4 ml-2 text-slate-100">Icone GitHub</button>}
+            {status == 'unauthenticated' && <button disabled onClick={() => signIn('google')} className="rounded border-2 border-cyan-700 px-4 py-2 my-4 ml-2 text-slate-100">Icone Google</button>}
           </div>
         </nav>
       </header>
