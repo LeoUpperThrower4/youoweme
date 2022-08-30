@@ -16,10 +16,14 @@ const customModalStyles = {
   },
 };
 
-export default function Header() {
+type HeaderProps = {
+  update: Boolean
+}
+
+export default function Header({ update }: HeaderProps) {
   const { data: session, status } = useSession();
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [groupName, setGroupName] = useState('');
+  const [ modalIsOpen, setModalIsOpen ] = useState(false);
+  const [ groupName, setGroupName ] = useState('');
   const { addGroup } = useGroups();
 
   function handleCreateGroupClick() {
@@ -38,16 +42,19 @@ export default function Header() {
     setModalIsOpen(false);
   }
 
-  function createGroup(event) {
-    // toast.success('Group created successfully!', {
-    //   position: toast.POSITION.TOP_RIGHT,
-    // });
-    event.preventDefault();
-    addGroup({
-      name: groupName,
-      creator: session.user.email,
-  });
-    handleCloseModal();
+  function createGroup(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    if (!update) {
+      event.preventDefault();
+      // Esse addGroup tem que retornar um success ou failure pra saber qual toast emitir
+      addGroup({
+        name: groupName,
+        creator: session?.user?.email || '',
+      });
+      // toast.success('Group created successfully!', {
+      //   position: toast.POSITION.TOP_RIGHT,
+      // });
+      handleCloseModal();
+    }
   }
 
   return (
@@ -55,8 +62,8 @@ export default function Header() {
       <header className="bg-cyan-600">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Top">
           <div className="flex justify-center">
-            <button onClick={handleCreateGroupClick} className="rounded border-2 border-cyan-700 px-4 py-2 my-4 text-slate-100">Criar Grupo</button>
-            {status == 'authenticated' && <button onClick={signOut} className="rounded border-2 border-cyan-700 px-4 py-2 my-4 ml-2 text-slate-100">Logout</button>}
+            <button onClick={handleCreateGroupClick} className="rounded border-2 border-cyan-700 px-4 py-2 my-4 text-slate-100">{update? 'Atualizar': 'Criar'} Grupo</button>
+            {status == 'authenticated' && <button onClick={() => signOut()} className="rounded border-2 border-cyan-700 px-4 py-2 my-4 ml-2 text-slate-100">Logout</button>}
             {status == 'unauthenticated' && <button onClick={() => signIn('github')} className="rounded border-2 border-cyan-700 px-4 py-2 my-4 ml-2 text-slate-100">Icone GitHub</button>}
             {status == 'unauthenticated' && <button disabled onClick={() => signIn('google')} className="rounded border-2 border-cyan-700 px-4 py-2 my-4 ml-2 text-slate-100">Icone Google</button>}
           </div>
@@ -70,7 +77,7 @@ export default function Header() {
       >
         <div>
           <div className='flex justify-between border-b mb-1 py-2'>
-            <h1>Crie seu grupo!</h1>
+            <h1>{update? 'Atualize': 'Crie'} seu grupo!</h1>
             <button onClick={handleCloseModal} className='ml-4'>X</button>
           </div>
           <form className='flex flex-col mt-2'>
@@ -83,4 +90,8 @@ export default function Header() {
       </Modal>
     </>
   )
+}
+
+Header.defaultProps = {
+  update: false
 }
