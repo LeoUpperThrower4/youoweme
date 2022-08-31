@@ -52,10 +52,6 @@ export default function useGroups() {
   }
 
   const [ groups, setGroups ] = useState<Group[]>([])
-
-  useEffect(() => {
-    console.log(groups)
-  }, [groups])
   
   useEffect(() => {
     readData("groups", (data: Group[]) => { 
@@ -73,10 +69,20 @@ export default function useGroups() {
               debtor: transaction.to,
               total: transaction.value,
             }
-            group.allGroupDebts = []
           }
           if (newDebt.total > 0) {
+            if (!(group.allGroupDebts?.length > 0)) {
+              group.allGroupDebts = [] 
+            }
+
+            // Verificação de existência de todos os participante, mesmo que não tenham sido citados na hora da criação ou adicionados posteriormente
             group.allGroupDebts.push(newDebt)
+            if (group.participants.indexOf(newDebt.creditor) < 0) {
+              group.participants.push(newDebt.creditor)
+            }
+            if (group.participants.indexOf(newDebt.debtor) < 0) {
+              group.participants.push(newDebt.debtor)
+            }
           }
         }
         updatedGroups.push(group)
