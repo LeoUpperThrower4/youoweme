@@ -16,6 +16,9 @@ const GroupPage: NextPage = () => {
           <div className='flex justify-center my-2'>
             <h1 className='font-bold text-2xl'>{group.name}</h1>
           </div>
+          <div className='flex justify-end m-2'>
+            <button className='mr-5 px-4 py-2 border rounded bg-green-400 text-slate-100'>Adicionar transação</button>
+          </div>
           <div className='flex flex-col items-center'>
             <InfoBox title='Informações do grupo'>
               <div>
@@ -48,4 +51,4 @@ const GroupPage: NextPage = () => {
   );
 }
 
-export default GroupPage;
+export default GroupPage;   
