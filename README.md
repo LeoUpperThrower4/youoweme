@@ -1,34 +1,52 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# You Owe Me
 
-## Getting Started
+![GitHub repo size](https://img.shields.io/github/repo-size/LeoUpperThrower4/youoweme?style=for-the-badge)
+![GitHub language count](https://img.shields.io/github/languages/count/LeoUpperThrower4/youoweme?style=for-the-badge)
+![GitHub forks](https://img.shields.io/github/forks/LeoUpperThrower4/youoweme?style=for-the-badge)
+![Bitbucket open issues](https://img.shields.io/bitbucket/issues/LeoUpperThrower4/youoweme?style=for-the-badge)
+![Bitbucket open pull requests](https://img.shields.io/bitbucket/pr-raw/LeoUpperThrower4/youoweme?style=for-the-badge)
 
-First, run the development server:
+## Introdução
+
+Esse é um projeto onde amigos podem deixar gravado quanto cada um deve para o outro
+
+## Tecnologias
+
+- [React](https://reactjs.org/) (Core do projeto)
+- [Firebase](https://firebase.google.com/) (Servidor realtime do projeto)
+
+## Melhorias a serem implementadas
+Foram listadas algumas possíveis melhorias na seção de [issues](https://github.com/LeoUpperThrower4/youoweme/issues) do GitHub do projeto
+
+Para iniciar o projeto:
 
 ```bash
-npm run dev
-# or
+# Clone o projeto
+git clone https://github.com/LeoUpperThrower4/youoweme.git
+
+# Entre na pasta
+cd youoweme
+
+# Instale as dependências
+yarn
+# ou 
+# npm install
+
+# Crie um arquivo .env com as variáveis de ambiente do GitHub
+
+# Inicie-o em modo desenvolvimento
 yarn dev
+# ou npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Contribuindo para o projeto
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+Para contribuir com o projeto, siga estas etapas:
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+1. Bifurque este repositório.
+2. Crie um branch: `git checkout -b <nome_branch> origin/main`.
+3. Faça suas alterações e confirme-as: `git commit -m '<mensagem_commit>'`
+4. Envie para o branch original: `git push origin <nome_branch>`
+5. Crie a solicitação de pull para a branch main.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Como alternativa, consulte a documentação do GitHub em [como criar uma solicitação pull](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
