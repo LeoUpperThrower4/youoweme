@@ -19,10 +19,6 @@ const GroupPage: NextPage = () => {
           <div className='flex flex-col items-center'>
             <InfoBox title='Informações do grupo'>
               <div>
-                <span className='font-bold'>Criador: </span>
-                <span className='italic'>{group.creator}</span>
-              </div>
-              <div>
                 <span className='font-bold'>Participantes: </span>
                 { group.participants && group.participants.map(participant => 
                 (<><br/><span className='italic' key={participant}>{participant}</span></>))}

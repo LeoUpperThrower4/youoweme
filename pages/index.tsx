@@ -19,7 +19,6 @@ const Home: NextPage = () => {
           {groups && groups.map((group: any) => (
               <div onClick={(e) => { handleGroupBoxClick(group) }} className='px-4 py-6 flex justify-center border border-black rounded cursor-pointer mb-1 hover:bg-slate-300' key={group.name}>
                 <h1>{group.name}</h1>
-                <span>{group.creator}</span>
               </div>
           ))}
         </div>
