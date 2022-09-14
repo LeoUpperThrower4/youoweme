@@ -1,9 +1,9 @@
 import Modal from 'react-modal';
 import { useState } from 'react';
-import { useSession, signIn, signOut } from 'next-auth/react';
 import useGroups from '../hooks/useGroups';
 import { writeData } from '../services/realtimeDB';
 import { useRouter } from 'next/router';
+import { useAuth } from '../hooks/useAuth';
 
 Modal.setAppElement('#__next');
 
@@ -23,8 +23,8 @@ type HeaderProps = {
 }
 
 export default function Header({ update }: HeaderProps) {
-  const { data: session, status } = useSession();
-  const { addGroup, groups } = useGroups();
+  const { addGroup, groups, updateGroups } = useGroups();
+  const { username } = useAuth();
   const router = useRouter();
 
   // Estados da modal de criação de grupo
@@ -39,23 +39,16 @@ export default function Header({ update }: HeaderProps) {
   const [ transactionDescription, setTransactionDescription ] = useState('');
 
   function handleCreateGroupClick() {
-    if (status != 'authenticated') {
-      signIn('github');
-    } else {
-      openGroupModal()
-    }
+    openGroupModal()
   }
-
   function openGroupModal() {
     setGroupModalIsOpen(true);
     setTransactionModalIsOpen(false);
   }
-
   function openTransactionModal() {
     setGroupModalIsOpen(false);
     setTransactionModalIsOpen(true);
   }
-
   function handleCloseModal() {
     if (groupModalIsOpen) {
       setGroupModalIsOpen(false);
@@ -73,17 +66,21 @@ export default function Header({ update }: HeaderProps) {
   function createGroup(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     event.preventDefault();
     if (!update) {
-      // Esse addGroup tem que retornar um success ou failure (ou um callback de sucesso) pra saber qual toast emitir
-      addGroup({
+      if (addGroup({
         name: groupName,
-        creator: session?.user?.email || '',
-        participants: [session?.user?.email || ''],
-        transactions: [{ from: session?.user?.email || '', to: session?.user?.email || '', value: 0, description: 'initial' , datetime: new Date().toISOString() }],
+        participants: [username || ''],
+        transactions: [], // { from: '', to: '', value: 0, description: 'initial' , datetime: new Date().toISOString() }
         allGroupDebts: [],
-      });
-      // toast.success('Group created successfully!', {
-      //   position: toast.POSITION.TOP_RIGHT,
-      // });
+      })) {
+        // toast.success('Group created successfully!', {
+        //   position: toast.POSITION.TOP_RIGHT,
+        // });
+      } else {
+        // toast.error('Group with this name already exists!', {
+          //   position: toast.POSITION.TOP_RIGHT,
+          // });
+        }
+      router.push(`/${groupName}`);
     } else {
       const groupId = groups.findIndex(group => group.name === router.query.groupName);
       if (groupId !== -1) {
@@ -113,6 +110,7 @@ export default function Header({ update }: HeaderProps) {
       groups[groupId].transactions.push(transaction);
       // Deve haver uma validação aqui
       writeData('groups', groups)
+      updateGroups()
     }
     // toast.success('Transaction created successfully!', {
     //   position: toast.POSITION.TOP_RIGHT,
@@ -126,14 +124,8 @@ export default function Header({ update }: HeaderProps) {
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Top">
           <div className="flex justify-center">
             <button onClick={handleCreateGroupClick} className="rounded border-2 border-cyan-700 px-4 py-2 my-4 text-slate-100">{update? 'Atualizar': 'Criar'} Grupo</button>
-            {status == 'authenticated' && 
-            <>
-              <button onClick={() => signOut()} className="rounded border-2 border-cyan-700 px-4 py-2 my-4 ml-2 text-slate-100">Logout</button>
-              { router.query.groupName &&
-              <button onClick={() => openTransactionModal()} className='rounded border-2 border-cyan-700 px-4 py-2 my-4 ml-2 bg-amber-200 hover:bg-amber-400'>Adicionar transação</button>}
-            </>
-            }
-            {status == 'unauthenticated' && <button onClick={() => signIn('github')} className="rounded border-2 border-cyan-700 px-4 py-2 my-4 ml-2 text-slate-100">Icone GitHub</button>}
+            { router.query.groupName &&
+            <button onClick={() => openTransactionModal()} className='rounded border-2 border-cyan-700 px-4 py-2 my-4 ml-2 bg-amber-200 hover:bg-amber-400'>Adicionar transação</button>}
           </div>
         </nav>
       </header>
@@ -167,8 +159,8 @@ export default function Header({ update }: HeaderProps) {
             </div>
             <form className='flex flex-col mt-2'>
               <input type="text" placeholder='Nome do grupo' className='border p-2 rounded' onChange={(e) => { setGroupName(e.target.value) }} />
-              <button className='border p-2 rounded mt-2 bg-cyan-600 text-white hover:bg-cyan-700' onClick={(e) => createGroup(e)}>
-                Criar
+              <button onClick={(event) => createGroup(event)} className='border p-2 rounded mt-2 bg-cyan-600 text-white hover:bg-cyan-700'>
+              {update? 'Atualizar': 'Criar'}
               </button>
             </form>
           </div>

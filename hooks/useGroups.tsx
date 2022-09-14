@@ -11,7 +11,6 @@ type Transaction = {
 
 type Group = {
   name: string,
-  creator: string,
   participants: string[],
   transactions: Transaction[],
   allGroupDebts: Debt[]
@@ -51,12 +50,17 @@ export default function useGroups() {
     }
   }
 
-  const [ groups, setGroups ] = useState<Group[]>([])
+  const [ groups, setGroups ] = useState([] as Group[])
+
+  function updateGroups() {
+    setGroups(readData("groups") as Group[])
+  }
   
   useEffect(() => {
-    readData("groups", (data: Group[]) => { 
-      let updatedGroups: Group[] = []
-      for (const group of data) {
+    const groups = readData("groups") as Group[]
+    let updatedGroups: Group[] = []
+    if (groups) {
+      for (const group of groups) {
         for (const transaction of group.transactions) {
           let newDebt: Debt
           let currDebt = group.allGroupDebts?.find(debt => (debt.debtor === transaction.to && debt.creditor === transaction.from) || (debt.debtor === transaction.from && debt.creditor === transaction.to))
@@ -87,14 +91,19 @@ export default function useGroups() {
         }
         updatedGroups.push(group)
       }
-      setGroups(updatedGroups)
-     })
+    }
+    setGroups(updatedGroups)
   }, [])
 
   const addGroup = (group: Group) => {
+    const groupExists = groups.find(g => g.name === group.name)
+    if (groupExists) {
+      return false
+    }
     setGroups((oldGroups) => [...oldGroups, group])
     writeData("groups", [...groups, group])
+    return true
   }
 
-  return { groups, addGroup }
+  return { groups, addGroup, updateGroups }
 }
