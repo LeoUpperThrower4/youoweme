@@ -57,6 +57,7 @@ const Home: NextPage = () => {
       </div>
       <Modal
         isOpen={modalIsOpen}
+        onRequestClose={() => {setModalIsOpen(false)}}
         contentLabel="Criar Grupo"
         style={customModalStyles}
       >
