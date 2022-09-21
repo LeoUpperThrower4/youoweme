@@ -25,6 +25,7 @@ export function GroupsProvider({ children }: GroupContextProps) {
   }, []) 
 
   useEffect(() => {
+    writeDataToDB('groups', groups)
     updateGroupsSummary()
   }, [groups])
   
