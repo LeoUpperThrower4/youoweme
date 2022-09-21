@@ -1,109 +1,130 @@
-import { useEffect, useState } from "react"
-import { readData, writeData } from "../services/realtimeDB"
+import { createContext, useContext, useEffect, useState } from "react"
+import { readDataFromDB, writeDataToDB } from "../services/database"
+import { Debt } from "../interfaces/debt"
+import { Group, GroupsSummary } from "../interfaces/Groups"
+import { Transaction } from "../interfaces/transactions"
 
-type Transaction = {
-  from: string,
-  to: string,
-  value: number,
-  description: string,
-  datetime: string,
+interface GroupContextProps {
+  children: React.ReactNode
+}
+interface GroupContextData {
+  groupsSummary: GroupsSummary[],
+  addGroup: (groupName: string) => boolean,
+  updateGroup: (oldGroup: Group, newGroup: Group) => boolean,
+  addTransaction: (groupName: string, transaction: Transaction) => void
 }
 
-type Group = {
-  name: string,
-  participants: string[],
-  transactions: Transaction[],
-  allGroupDebts: Debt[]
-}
+const GroupsContext = createContext({} as GroupContextData)
 
-type Debt = {
-  debtor: string,
-  creditor: string,
-  total: number,
-}
-
-export default function useGroups() {
-
-  function GetUpdatedDebt(currDebt: Debt, newTransaction: Transaction): Debt {
-    const { debtor, creditor, total } = currDebt
-    if (debtor === newTransaction.to) {
-      return {
-        debtor,
-        creditor,
-        total: total + newTransaction.value,
-      }
-    } else {
-      const newTotal = total - newTransaction.value
-      if (newTotal < 0) {
-        return {
-          creditor: newTransaction.from,
-          debtor: newTransaction.to,
-          total: Math.abs(newTotal),
-        }
-      } else {
-        return {
-          debtor: newTransaction.from,
-          creditor: newTransaction.to,
-          total: newTotal,
-        }
-      }
-    }
-  }
-
+export function GroupsProvider({ children }: GroupContextProps) {
   const [ groups, setGroups ] = useState([] as Group[])
+  const [ groupsSummary, setGroupsSummary ] = useState([] as GroupsSummary[])
 
-  function updateGroups() {
-    setGroups(readData("groups") as Group[])
-  }
-  
   useEffect(() => {
-    const groups = readData("groups") as Group[]
-    let updatedGroups: Group[] = []
-    if (groups) {
-      for (const group of groups) {
-        for (const transaction of group.transactions) {
-          let newDebt: Debt
-          let currDebt = group.allGroupDebts?.find(debt => (debt.debtor === transaction.to && debt.creditor === transaction.from) || (debt.debtor === transaction.from && debt.creditor === transaction.to))
-          if (currDebt) {
-            group.allGroupDebts.splice(group.allGroupDebts.indexOf(currDebt), 1)
-            newDebt = GetUpdatedDebt(currDebt, transaction)
-          } else {
-            newDebt = {
-              creditor: transaction.from,
-              debtor: transaction.to,
-              total: transaction.value,
-            }
-          }
-          if (newDebt.total > 0) {
-            if (!(group.allGroupDebts?.length > 0)) {
-              group.allGroupDebts = [] 
-            }
+    setGroups(readDataFromDB('groups') || [])
+  }, []) 
 
-            // Verificação de existência de todos os participante, mesmo que não tenham sido citados na hora da criação ou adicionados posteriormente
-            group.allGroupDebts.push(newDebt)
-            if (group.participants.indexOf(newDebt.creditor) < 0) {
-              group.participants.push(newDebt.creditor)
-            }
-            if (group.participants.indexOf(newDebt.debtor) < 0) {
-              group.participants.push(newDebt.debtor)
-            }
+  useEffect(() => {
+    updateGroupsSummary()
+  }, [groups])
+  
+  function calculateAllGroupDebts(group: Group): Debt[] {
+    const debts: Debt[] = []
+    group.participants.forEach(participant => {
+      group.transactions.forEach(transaction => {
+        if (transaction.from === participant) {
+          const debt = debts.find(d => d.debtor === participant && d.creditor === transaction.to)
+          if (debt) {
+            debt.total += transaction.value
+          } else {
+            debts.push({
+              debtor: participant,
+              creditor: transaction.to,
+              total: transaction.value,
+            })
           }
         }
-        updatedGroups.push(group)
-      }
-    }
-    setGroups(updatedGroups)
-  }, [])
-
-  const addGroup = (group: Group) => {
-    const groupExists = groups.find(g => g.name === group.name)
+        if (transaction.to === participant) {
+          const debt = debts.find(d => d.debtor === transaction.from && d.creditor === participant)
+          if (debt) {
+            debt.total -= transaction.value
+          } else {
+            debts.push({
+              debtor: transaction.from,
+              creditor: participant,
+              total: -transaction.value,
+            })
+          }
+        }
+      })
+    })
+    return debts
+  }
+  function updateGroupsSummary() {
+    setGroupsSummary(
+      groups.map(group => {
+        const allGroupDebts = calculateAllGroupDebts(group)
+        return {
+          ...group,
+          allGroupDebts
+        }
+      })
+    )
+  }
+  function addGroup(groupName: string): boolean {
+    const groupExists = groups.find(g => g.name === groupName)
     if (groupExists) {
       return false
     }
-    setGroups((oldGroups) => [...oldGroups, group])
-    writeData("groups", [...groups, group])
+    const newGroup = {
+      name: groupName,
+      participants: [],
+      transactions: [],
+      allGroupDebts: [],
+    }
+    setGroups([...groups, newGroup])    
+    writeDataToDB('groups', [...groups, newGroup])
+    updateGroupsSummary()
     return true
   }
+  function updateGroup(oldGroup: Group, newGroup: Group): boolean {
+    const groupExists = groups.find(g => g.name === newGroup.name)
+    if (groupExists) {
+      return false
+    }
+    const newGroups = groups.map(group => {
+      if (group.name === oldGroup.name) {
+        return newGroup
+      }
+      return group
+    })
+    setGroups(newGroups)
+    writeDataToDB('groups', newGroups)
+    updateGroupsSummary()
+    return true
+  }
+  function addTransaction(groupName: string, transaction: Transaction) {
+    setGroups(groups.map(group => {
+      if (group.name === groupName) {
+        return {
+          ...group,
+          transactions: [...group.transactions, transaction]
+        }
+      }
+      return group
+    }))
+    updateGroupsSummary()
+  }
 
-  return { groups, addGroup, updateGroups }
+  return (
+    <GroupsContext.Provider value={{groupsSummary, updateGroup, addGroup, addTransaction}}>
+      {children}
+    </GroupsContext.Provider>
+  )
+}
+
+export default function useGroups() {
+  const context = useContext(GroupsContext);
+
+  return context;
 }

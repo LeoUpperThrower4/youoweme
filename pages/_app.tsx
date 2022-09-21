@@ -1,12 +1,12 @@
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
-import { AuthProvider } from '../hooks/useAuth'
+import { GroupsProvider } from '../hooks/useGroups'
 
 function MyApp({ Component, pageProps: {session, ...pageProps} }: AppProps) {
   return (
-    <AuthProvider>
+    <GroupsProvider>
       <Component {...pageProps} />
-    </AuthProvider>
+    </GroupsProvider>
   )
 }
 
