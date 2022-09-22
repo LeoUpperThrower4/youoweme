@@ -19,46 +19,46 @@ const GroupsContext = createContext({} as GroupContextData)
 export function GroupsProvider({ children }: GroupContextProps) {
   const [ groups, setGroups ] = useState([] as Group[])
   const [ groupsSummary, setGroupsSummary ] = useState([] as GroupsSummary[])
+  const [firstReadDB, setFirstReadDB] = useState(true)
 
   useEffect(() => {
-    setGroups(readDataFromDB('groups') || [])
-  }, []) 
-
-  useEffect(() => {
-    writeDataToDB('groups', groups)
-    updateGroupsSummary()
-  }, [groups])
+    if (!firstReadDB) {
+      writeDataToDB('groups', groups)
+      
+      updateGroupsSummary()
+    } else {
+      setGroups(readDataFromDB('groups') || [])
+      setFirstReadDB(false)
+    }
+  }, [groups, firstReadDB])
   
   function calculateAllGroupDebts(group: Group): Debt[] {
     const debts: Debt[] = []
-    group.participants.forEach(participant => {
-      group.transactions.forEach(transaction => {
-        if (transaction.from === participant) {
-          const debt = debts.find(d => d.debtor === participant && d.creditor === transaction.to)
-          if (debt) {
-            debt.total += transaction.value
-          } else {
-            debts.push({
-              debtor: participant,
-              creditor: transaction.to,
-              total: transaction.value,
-            })
+    group.transactions.forEach(transaction => {
+      let debt = debts.find(d => d.creditor === transaction.from)
+      if (debt) {
+        debts.splice(debts.indexOf(debt), 1)
+        debt.total += transaction.value
+        debts.push(debt)
+      } else {
+        debt = debts.find(d => d.debtor === transaction.from)
+        if (debt) {
+          debts.splice(debts.indexOf(debt), 1)   
+          debt.total -= transaction.value  
+          if (debt.total < 0) {
+            debt.debtor = debt.creditor
+            debt.creditor = transaction.from
+            debt.total = Math.abs(debt.total)
           }
-        }
-        if (transaction.to === participant) {
-          const debt = debts.find(d => d.debtor === transaction.from && d.creditor === participant)
-          if (debt) {
-            debt.total -= transaction.value
-          } else {
-            debts.push({
-              debtor: transaction.from,
-              creditor: participant,
-              total: -transaction.value,
-            })
-          }
-        }
+          debts.push(debt)
+        } else {            
+          debts.push({
+            creditor: transaction.from,
+            debtor: transaction.to,
+            total: Math.abs(transaction.value),
+          })
+        }}
       })
-    })
     return debts
   }
   function updateGroupsSummary() {
@@ -107,6 +107,12 @@ export function GroupsProvider({ children }: GroupContextProps) {
   function addTransaction(groupName: string, transaction: Transaction) {
     setGroups(groups.map(group => {
       if (group.name === groupName) {
+        if (!group.participants.includes(transaction.from)) {
+          group.participants.push(transaction.from)
+        }
+        if (!group.participants.includes(transaction.to)) {
+          group.participants.push(transaction.to)
+        }
         return {
           ...group,
           transactions: [...group.transactions, transaction]
