@@ -3,9 +3,8 @@ import { Transaction } from "./transactions";
 
 export interface Group {
   name: string,
-  participants: string[],
   transactions: Transaction[],
-  
+  participants: string[],
 }
 export interface GroupsSummary extends Group {
   allGroupDebts: Debt[]
