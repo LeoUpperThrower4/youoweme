@@ -35,13 +35,13 @@ export function GroupsProvider({ children }: GroupContextProps) {
   function calculateAllGroupDebts(group: Group): Debt[] {
     const debts: Debt[] = []
     group.transactions.forEach(transaction => {
-      let debt = debts.find(d => d.creditor === transaction.from)
+      let debt = debts.find(d => d.creditor === transaction.from && d.debtor === transaction.to)
       if (debt) {
         debts.splice(debts.indexOf(debt), 1)
         debt.total += transaction.value
         debts.push(debt)
       } else {
-        debt = debts.find(d => d.debtor === transaction.from)
+        debt = debts.find(d => d.debtor === transaction.from && d.creditor === transaction.to)
         if (debt) {
           debts.splice(debts.indexOf(debt), 1)   
           debt.total -= transaction.value  
