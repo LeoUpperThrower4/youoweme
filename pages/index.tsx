@@ -47,9 +47,9 @@ const Home: NextPage = () => {
         <button onClick={() => {setModalIsOpen(true)}} className="rounded border-2 border-cyan-700 px-4 py-2 my-4 text-slate-100">Criar Grupo</button>
       </Header>
       <div className='flex justify-center'>
-        <div className='w-full max-w-md mt-2'>
+        <div className='w-full max-w-md mt-2 border-2 rounded hover:bg-slate-300'>
           {groupsSummary && groupsSummary.map((group: Group) => (
-              <div onClick={() => { handleGroupBoxClick(group) }} className='px-4 py-6 flex justify-center border border-black rounded cursor-pointer mb-1 hover:bg-slate-300' key={group.name}>
+              <div onClick={() => { handleGroupBoxClick(group) }} className='px-4 py-6 flex justify-center cursor-pointer mb-1' key={group.name}>
                 <h1>{group.name}</h1>
               </div>
           ))}

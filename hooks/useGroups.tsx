@@ -107,7 +107,6 @@ export function GroupsProvider({ children }: GroupContextProps) {
     return true
   }
   function addTransaction(groupName: string, transaction: Transaction) {
-    transaction.id = uuid4()
     setGroups(groups.map(group => {
       if (group.name === groupName) {
         if (!group.participants.includes(transaction.from)) {
