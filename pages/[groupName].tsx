@@ -1,10 +1,11 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Modal from 'react-modal';
 import Header from '../components/Header';
 import InfoBox from '../components/InfoBox';
 import useGroups from '../hooks/useGroups';
+import { Debt } from '../interfaces/debt';
 import { Transaction } from '../interfaces/transactions';
 
 Modal.setAppElement('#__next');
@@ -21,6 +22,7 @@ const customModalStyles = {
 };
 
 const GroupPage: NextPage = () => {
+  const { groupsSummary, addTransaction } = useGroups();
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const fromInput = useRef(null);
@@ -28,11 +30,16 @@ const GroupPage: NextPage = () => {
   const valueInput = useRef(null);
   const descriptionInput = useRef(null);
 
-  const { groupsSummary, addTransaction } = useGroups();
   const groupName = useRouter().query.groupName;
   const group = groupsSummary.find(group => group.name === groupName);
 
-  function handleCreateTransaction(event: React.MouseEvent<HTMLElement>) {
+  const [debtsCollapsed, setDebtsCollapsed] = useState<boolean[]>([]); 
+
+  useEffect(() => {
+    setDebtsCollapsed(Array(group?.allGroupDebts.length).fill(true))
+  }, [group])
+  
+  function handleCreateTransactionClick(event: React.MouseEvent<HTMLElement>) {
     event.preventDefault();
     createTransaction();
   }
@@ -56,6 +63,16 @@ const GroupPage: NextPage = () => {
     }
   }
 
+  function toggleCollapse(debt: Debt): void {    
+    const debtIndex = group?.allGroupDebts.indexOf(debt);
+
+    if (debtIndex >= 0 ) {
+      setDebtsCollapsed(
+        debtsCollapsed.map((_, index) => index === debtIndex ? !debtsCollapsed[index] : debtsCollapsed[index])
+      )
+    }
+  }
+
   return (
     <>
       <Header update>
@@ -76,12 +93,12 @@ const GroupPage: NextPage = () => {
             </InfoBox>
             <InfoBox title='Devedores' className='mt-2'>
               {group.allGroupDebts && group.allGroupDebts.map(debt => (
-                <div key={debt.total}>
-                  <span className='font-bold'>{debt.debtor}</span> deve <span className='italic'>R$ {debt.total}</span> para <span className='font-bold'>{debt.creditor}</span> devido essas transações:
-                  <div className='flex flex-col items-center mt-2'>
+                <div key={debt.id}>
+                  <span className='font-bold'>{debt.debtor}</span> deve <span className='italic'>R$ {debt.total}</span> para <span className='font-bold'>{debt.creditor}</span> devido essas transações <span className='italic text-sm cursor-pointer' onClick={() => toggleCollapse(debt)}>Collapse</span>
+                  <div className={` transition-transform flex flex-col items-center mt-2 ${debtsCollapsed[group?.allGroupDebts.indexOf(debt)]? 'hidden': ''}`}>
                     {/* adicionar um dropdown para permitir esconder as transações */}
                     {group.transactions.filter(transaction => (transaction.to === debt.creditor && transaction.from === debt.debtor) || (transaction.to === debt.debtor && transaction.from === debt.creditor)).map(transaction => (
-                      <div key={transaction.datetime}>
+                      <div key={transaction.id}>
                         {transaction.from} emprestou para {transaction.to} <span className='italic'>R$ {transaction.value}</span> por causa de: {transaction.description}
                       </div>
                     ))}
@@ -107,7 +124,7 @@ const GroupPage: NextPage = () => {
             <input type="text" placeholder='Para' className='border p-2 rounded' ref={toInput} />
             <input type="text" placeholder='Valor (ex: 15.50)' className='border p-2 rounded' ref={valueInput} />
             <input type="text" placeholder='Descrição' className='border p-2 rounded' ref={descriptionInput} />
-            <button className='border p-2 rounded mt-2 bg-cyan-600 text-white hover:bg-cyan-700' onClick={(e) => {handleCreateTransaction(e)}}>
+            <button className='border p-2 rounded mt-2 bg-cyan-600 text-white hover:bg-cyan-700' onClick={(e) => {handleCreateTransactionClick(e)}}>
               Criar
             </button>
           </form>
