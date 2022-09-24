@@ -3,6 +3,7 @@ import { readDataFromDB, writeDataToDB } from "../services/database"
 import { Debt } from "../interfaces/debt"
 import { Group, GroupsSummary } from "../interfaces/Groups"
 import { Transaction } from "../interfaces/transactions"
+import uuid4 from "uuid4"
 
 interface GroupContextProps {
   children: React.ReactNode
@@ -53,6 +54,7 @@ export function GroupsProvider({ children }: GroupContextProps) {
           debts.push(debt)
         } else {            
           debts.push({
+            id: uuid4(),
             creditor: transaction.from,
             debtor: transaction.to,
             total: Math.abs(transaction.value),
@@ -105,6 +107,7 @@ export function GroupsProvider({ children }: GroupContextProps) {
     return true
   }
   function addTransaction(groupName: string, transaction: Transaction) {
+    transaction.id = uuid4()
     setGroups(groups.map(group => {
       if (group.name === groupName) {
         if (!group.participants.includes(transaction.from)) {
