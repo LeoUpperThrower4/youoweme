@@ -4,7 +4,7 @@ type InfoBoxProps = {
   className?: string,
 }
 
-export default function InfoBox({ title, children, className }: InfoBoxProps) {
+export default function InfoBox({ title, children, className }: InfoBoxProps): JSX.Element {
   return ( 
     <div className={`w-screen p-4 border-2 rounded max-w-md ${className}`}>
       <div className='flex justify-center'>
