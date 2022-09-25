@@ -12,8 +12,8 @@ Esse é um projeto onde amigos podem deixar gravado quanto cada um deve para o o
 
 ## Tecnologias
 
-- [React](https://reactjs.org/) (Core do projeto)
-- [Firebase](https://firebase.google.com/) (Servidor realtime do projeto)
+- [React](https://reactjs.org/)
+- [Next.js](https://nextjs.org/)
 
 ## Melhorias a serem implementadas
 Foram listadas algumas possíveis melhorias na seção de [issues](https://github.com/LeoUpperThrower4/youoweme/issues) do GitHub do projeto
@@ -39,7 +39,7 @@ yarn dev
 # ou npm run dev
 ```
 
-## Contribuindo para o projeto
+## Contribua para o projeto
 
 Para contribuir com o projeto, siga estas etapas:
 
@@ -49,4 +49,4 @@ Para contribuir com o projeto, siga estas etapas:
 4. Envie para o branch original: `git push origin <nome_branch>`
 5. Crie a solicitação de pull para a branch main.
 
-Como alternativa, consulte a documentação do GitHub em [como criar uma solicitação pull](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
+Em caso de dúvida, consulte a documentação do GitHub em [como criar uma solicitação pull](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
