@@ -5,7 +5,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline'
 import Header from '../components/Header'
 import useGroups from '../hooks/useGroups'
 import { useRef, useState } from 'react';
-import { Group } from '../interfaces/Groups';
+import { Group } from '../interfaces/groups';
 
 Modal.setAppElement('#__next');
 
@@ -24,7 +24,7 @@ const Home: NextPage = () => {
   const { groupsSummary, addGroup } = useGroups();
   const router = useRouter()
   const [modalIsOpen, setModalIsOpen] = useState(false)
-  const groupNameInput = useRef(null) // HTMLInputElement. não consegui tipar corretamente
+  const groupNameInput = useRef<HTMLInputElement>(null) // HTMLInputElement. não consegui tipar corretamente
 
   function handleGroupBoxClick(group: Group) {
     router.push(group.name)
@@ -32,7 +32,7 @@ const Home: NextPage = () => {
 
   function handleCreateGroupClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     event.preventDefault()
-    const groupName = groupNameInput.current.value
+    const groupName = groupNameInput.current?.value
     if (groupName) {
       if (addGroup(groupName)) {
       } else {

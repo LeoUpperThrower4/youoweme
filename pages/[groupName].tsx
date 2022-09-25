@@ -27,10 +27,10 @@ const GroupPage: NextPage = () => {
   const { groupsSummary, addTransaction } = useGroups();
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
-  const fromInput = useRef(null);
-  const toInput = useRef(null);
-  const valueInput = useRef(null);
-  const descriptionInput = useRef(null);
+  const fromInput = useRef<HTMLInputElement>(null);
+  const toInput = useRef<HTMLInputElement>(null);
+  const valueInput = useRef<HTMLInputElement>(null);
+  const descriptionInput = useRef<HTMLInputElement>(null);
 
   const groupName = useRouter().query.groupName;
   const group = groupsSummary.find(group => group.name === groupName);
@@ -49,10 +49,10 @@ const GroupPage: NextPage = () => {
   }
 
   function createTransaction() {
-    const from = fromInput.current.value;
-    const to = toInput.current.value;
-    const value = valueInput.current.value;
-    const description = descriptionInput.current.value;
+    const from = fromInput.current?.value;
+    const to = toInput.current?.value;
+    const value = valueInput.current?.value;
+    const description = descriptionInput.current?.value;
 
     if (group && from && to && value && description) {      
       const transaction: Transaction = {
@@ -71,7 +71,7 @@ const GroupPage: NextPage = () => {
   function toggleCollapse(debt: Debt): void {    
     const debtIndex = group?.allGroupDebts.indexOf(debt);
 
-    if (debtIndex >= 0 ) {
+    if (debtIndex && debtIndex >= 0 ) {
       setDebtsCollapsed(
         debtsCollapsed.map((_, index) => index === debtIndex ? !debtsCollapsed[index] : debtsCollapsed[index])
       )
