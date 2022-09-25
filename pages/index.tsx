@@ -1,6 +1,7 @@
 import Modal from 'react-modal';
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
+import { XMarkIcon } from '@heroicons/react/24/outline'
 import Header from '../components/Header'
 import useGroups from '../hooks/useGroups'
 import { useRef, useState } from 'react';
@@ -60,12 +61,11 @@ const Home: NextPage = () => {
         onRequestClose={() => {setModalIsOpen(false)}}
         contentLabel="Criar Grupo"
         style={customModalStyles}
-      >
-        
+      > 
         <div>
           <div className='flex justify-between border-b mb-1 py-2'>
             <h1>Crie seu grupo!</h1>
-            <button onClick={() => {setModalIsOpen(false)}} className='ml-4'>X</button>
+            <XMarkIcon onClick={() => {setModalIsOpen(false)}} className='w-4 mt-1 cursor-pointer' />
           </div>
           <form className='flex flex-col mt-2'>
             <input ref={groupNameInput} type="text" placeholder='Nome do grupo' className='border p-2 rounded' />

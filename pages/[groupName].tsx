@@ -8,7 +8,7 @@ import InfoBox from '../components/InfoBox';
 import useGroups from '../hooks/useGroups';
 import { Debt } from '../interfaces/debt';
 import { Transaction } from '../interfaces/transactions';
-import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/24/outline'
+import { ArrowDownIcon, ArrowUpIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
 Modal.setAppElement('#__next');
 
@@ -140,7 +140,7 @@ const GroupPage: NextPage = () => {
         <div>
           <div className='flex justify-between border-b mb-1 py-2'>
             <h1>Adicione uma transação!</h1>
-            <button onClick={() => {setModalIsOpen(false)}} className='ml-4'>X</button>
+            <XMarkIcon onClick={() => {setModalIsOpen(false)}} className='cursor-pointer w-4 mt-1'/>
           </div>
           <form className='flex flex-col mt-2'>
             <input type="text" placeholder='De' className='border p-2 rounded' ref={fromInput}/> 
