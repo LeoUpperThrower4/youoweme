@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { readDataFromDB, writeDataToDB } from "../services/database"
 import { Debt } from "../interfaces/debt"
-import { Group, GroupsSummary } from "../interfaces/Groups"
+import { Group, GroupsSummary } from "../interfaces/groups"
 import { Transaction } from "../interfaces/transactions"
 import uuid4 from "uuid4"
 
