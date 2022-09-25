@@ -71,7 +71,7 @@ const GroupPage: NextPage = () => {
   function toggleCollapse(debt: Debt): void {    
     const debtIndex = group?.allGroupDebts.indexOf(debt);
 
-    if (debtIndex && debtIndex >= 0 ) {
+    if (debtIndex !== -1 ) {
       setDebtsCollapsed(
         debtsCollapsed.map((_, index) => index === debtIndex ? !debtsCollapsed[index] : debtsCollapsed[index])
       )
@@ -89,7 +89,7 @@ const GroupPage: NextPage = () => {
   return (
     <>
       <Header update>
-        <button className='rounded border-2 border-cyan-700 px-4 py-2 my-4 text-slate-100 hover:bg-cyan-700' onClick={(e) => {setModalIsOpen(true)}}>Criar Transação</button>
+        <button className='rounded border-2 border-cyan-700 px-4 py-2 my-4 text-slate-100 hover:bg-cyan-700' onClick={() => {setModalIsOpen(true)}}>Criar Transação</button>
       </Header>
       {group && (
         <>
