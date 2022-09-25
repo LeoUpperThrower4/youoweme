@@ -13,6 +13,7 @@ interface GroupContextData {
   addGroup: (groupName: string) => boolean,
   updateGroup: (oldGroup: Group, newGroup: Group) => boolean,
   addTransaction: (groupName: string, transaction: Transaction) => void
+  removeTransaction: (groupName: string, transactionId: string) => void
 }
 
 const GroupsContext = createContext({} as GroupContextData)
@@ -124,9 +125,21 @@ export function GroupsProvider({ children }: GroupContextProps) {
     }))
     updateGroupsSummary()
   }
+  function removeTransaction(groupName: string, transactionId: string) {
+    setGroups(groups.map(group => {
+      if (group.name === groupName) {
+        return {
+          ...group,
+          transactions: group.transactions.filter(t => t.id !== transactionId)
+        }
+      }
+      return group
+    }))
+    updateGroupsSummary()
+  }
 
   return (
-    <GroupsContext.Provider value={{groupsSummary, updateGroup, addGroup, addTransaction}}>
+    <GroupsContext.Provider value={{groupsSummary, updateGroup, addGroup, addTransaction, removeTransaction}}>
       {children}
     </GroupsContext.Provider>
   )
