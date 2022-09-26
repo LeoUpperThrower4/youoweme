@@ -8,12 +8,15 @@ import uuid4 from "uuid4"
 interface GroupContextProps {
   children: React.ReactNode
 }
+
 interface GroupContextData {
   groupsSummary: GroupsSummary[],
   addGroup: (groupName: string) => boolean,
   updateGroup: (oldGroup: Group, newGroup: Group) => boolean,
   addTransaction: (groupName: string, transaction: Transaction) => void
   removeTransaction: (groupName: string, transactionId: string) => void
+  createBackup: () => void,
+  loadBackup: () => void
 }
 
 const GroupsContext = createContext({} as GroupContextData)
@@ -22,6 +25,19 @@ export function GroupsProvider({ children }: GroupContextProps) {
   const [ groups, setGroups ] = useState([] as Group[])
   const [ groupsSummary, setGroupsSummary ] = useState([] as GroupsSummary[])
   const [firstReadDB, setFirstReadDB] = useState(true)
+
+  function createBackup() {
+    const backup = JSON.stringify(groups)
+    localStorage.setItem("backup", backup)
+  }
+
+  function loadBackup() {
+    const backup = localStorage.getItem("backup")
+    if (backup) {
+      const groups = JSON.parse(backup)
+      setGroups(groups)
+    }
+  }
 
   useEffect(() => {
     if (!firstReadDB) {
@@ -80,11 +96,11 @@ export function GroupsProvider({ children }: GroupContextProps) {
     if (groupExists) {
       return false
     }
-    const newGroup = {
+    const newGroup: GroupsSummary = {
       name: groupName,
       participants: [],
       transactions: [],
-      allGroupDebts: [],
+      allGroupDebts: []
     }
     setGroups([...groups, newGroup])    
     writeDataToDB('groups', [...groups, newGroup])
@@ -139,7 +155,7 @@ export function GroupsProvider({ children }: GroupContextProps) {
   }
 
   return (
-    <GroupsContext.Provider value={{groupsSummary, updateGroup, addGroup, addTransaction, removeTransaction}}>
+    <GroupsContext.Provider value={{groupsSummary, updateGroup, addGroup, addTransaction, removeTransaction, createBackup, loadBackup}}>
       {children}
     </GroupsContext.Provider>
   )

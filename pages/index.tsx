@@ -6,6 +6,8 @@ import Header from '../components/Header'
 import useGroups from '../hooks/useGroups'
 import { useRef, useState } from 'react';
 import { Group } from '../interfaces/groups';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 Modal.setAppElement('#__next');
 
@@ -24,7 +26,7 @@ const Home: NextPage = () => {
   const { groupsSummary, addGroup } = useGroups();
   const router = useRouter()
   const [modalIsOpen, setModalIsOpen] = useState(false)
-  const groupNameInput = useRef<HTMLInputElement>(null) // HTMLInputElement. não consegui tipar corretamente
+  const groupNameInput = useRef<HTMLInputElement>(null)
 
   function handleGroupBoxClick(group: Group) {
     router.push(group.name)
@@ -35,11 +37,14 @@ const Home: NextPage = () => {
     const groupName = groupNameInput.current?.value
     if (groupName) {
       if (addGroup(groupName)) {
+        toast.success('Grupo criado com sucesso!')
       } else {
-        alert('Ocorreu um erro ao criar o grupo')
+        toast.error('Ocorreu um erro ao criar o grupo\nO nome do grupo deve ser único.')
       }
+      setModalIsOpen(false)
+    } else {
+      toast.error('O nome do grupo não pode ser vazio')
     }
-    setModalIsOpen(false)
   }
 
   return (
@@ -48,9 +53,9 @@ const Home: NextPage = () => {
         <button onClick={() => {setModalIsOpen(true)}} className="rounded border-2 border-cyan-700 px-4 py-2 my-4 text-slate-100">Criar Grupo</button>
       </Header>
       <div className='flex justify-center'>
-        <div className='w-full max-w-md mt-2 border-2 rounded hover:bg-slate-300'>
+        <div className='w-full max-w-md mt-2 rounded'>
           {groupsSummary && groupsSummary.map((group: Group) => (
-              <div onClick={() => { handleGroupBoxClick(group) }} className='px-4 py-6 flex justify-center cursor-pointer mb-1' key={group.name}>
+              <div onClick={() => { handleGroupBoxClick(group) }} className='border-2 m-2 px-4 py-6 flex justify-center cursor-pointer hover:bg-slate-300' key={group.name}>
                 <h1>{group.name}</h1>
               </div>
           ))}
@@ -75,6 +80,7 @@ const Home: NextPage = () => {
           </form>
         </div>
       </Modal>
+      <ToastContainer />
     </>
 )}
 

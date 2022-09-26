@@ -9,6 +9,8 @@ import useGroups from '../hooks/useGroups';
 import { Debt } from '../interfaces/debt';
 import { Transaction } from '../interfaces/transactions';
 import { ArrowDownIcon, ArrowUpIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 Modal.setAppElement('#__next');
 
@@ -24,9 +26,11 @@ const customModalStyles = {
 };
 
 const GroupPage: NextPage = () => {
-  const { groupsSummary, addTransaction, removeTransaction } = useGroups();
+  const { groupsSummary, addTransaction, removeTransaction, createBackup, loadBackup } = useGroups();
   const [transactionModalIsOpen, setTransactionModalIsOpen] = useState(false);
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
+
+  const router = useRouter()
 
   const fromInput = useRef<HTMLInputElement>(null);
   const toInput = useRef<HTMLInputElement>(null);
@@ -43,6 +47,8 @@ const GroupPage: NextPage = () => {
   useEffect(() => {
     if (group) {
       setDebtsCollapsed(Array(group.allGroupDebts.length).fill(true));
+    } else {
+      router.push('/', '/NotFound');
     }
   }, [group])
   
@@ -112,8 +118,13 @@ const GroupPage: NextPage = () => {
   }
 
   function confirmRemoveTransaction(shouldRemove: boolean) {
-    if (shouldRemove && toBeDeletedTransaction) {
-      removeTransaction(groupName, toBeDeletedTransaction?.id);
+    if (group && shouldRemove && toBeDeletedTransaction) {
+      createBackup();
+      removeTransaction(groupName, toBeDeletedTransaction.id);
+      toast.success('Transação removida com sucesso. Clique aqui para desfazer', {
+        onClick: loadBackup,
+        closeButton: true
+      });
     }
     setToBeDeletedTransaction(undefined);
     setDeleteModalIsOpen(false);
@@ -207,6 +218,7 @@ const GroupPage: NextPage = () => {
           </div>
         </div>
       </Modal>
+      <ToastContainer />
     </>
   );
 }
